@@ -78,7 +78,7 @@ def _serialize_list(l: List[Any]) -> List[Any]:
     for i in range(len(l)):
         if type(l[i]) is list:
             l[i] = _serialize_list(l[i])
-        elif type(l[i]) is dict:
+        elif issubclass(type(l[i]), dict):
             l[i] = _serialize_collection(l[i])
 
         try:
@@ -107,7 +107,9 @@ def _serialize_collection(collection: Dict[Any, Any]) -> Dict[Any, Any]:
             except Exception:
                 print('Unable to serialize keyword %s. Dropped from collection' % key)
 
-        if type(collection[key]) is dict:
+        if issubclass(type(collection[key]), Loggable):
+            collection[key] = _serialize_collection(collection[key].to_json())
+        elif issubclass(type(collection[key]), dict):
             collection[key] = _serialize_collection(collection[key])
         elif type(collection[key]) is list:
             collection[key] = _serialize_list(collection[key])
