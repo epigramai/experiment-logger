@@ -85,7 +85,7 @@ def _serialize_list(l: List[Any]) -> List[Any]:
             json.dumps(l[i])
         except Exception:
             if issubclass(type(l[i]), Loggable):
-                json.dumps(l[i].to_json)
+                json.dumps(l[i].to_object_dict)
             else:
                 l[i] = str(l[i])
 
@@ -108,7 +108,7 @@ def _serialize_collection(collection: Dict[Any, Any]) -> Dict[Any, Any]:
                 print('Unable to serialize keyword %s. Dropped from collection' % key)
 
         if issubclass(type(collection[key]), Loggable):
-            collection[key] = _serialize_collection(collection[key].to_json())
+            collection[key] = _serialize_collection(collection[key].to_object_dict())
         elif issubclass(type(collection[key]), dict):
             collection[key] = _serialize_collection(collection[key])
         elif type(collection[key]) is list:
@@ -119,7 +119,7 @@ def _serialize_collection(collection: Dict[Any, Any]) -> Dict[Any, Any]:
         except Exception:
             try:
                 if issubclass(type(collection[key]), Loggable):
-                    collection[key] = collection[key].to_json()
+                    collection[key] = collection[key].to_object_dict()
                 else:
                     collection[key] = str(collection[key])
             except Exception as e:
