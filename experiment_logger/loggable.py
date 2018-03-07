@@ -20,8 +20,8 @@ class ObjectDict(OrderedDict):
         except (KeyError, AssertionError):
             raise ValueError('ObjectDict must be initialised with a Loggable type or a dict with an _obj_cls key')
 
-    def to_object(self):
-        return self._obj_cls.from_object_dict(self)
+    def to_object(self, **kwargs):
+        return self._obj_cls.from_object_dict(self, **kwargs)
 
 
 class Loggable(ABC):
@@ -53,12 +53,16 @@ class Loggable(ABC):
     def from_object_dict(cls, dct, **kwargs):
         """ Recreates object from dictionary """
         obj = cls.__new__(cls)
+        obj.restore_object(**kwargs)
+        return obj
+
+    def restore_object(self, **kwargs):
+        """Determines how object is restored from stored attributes. May e.g. be overridden by a call to __init__."""
         for key, value in kwargs.items():
             try:
                 obj_dct = ObjectDict(value)
             except (TypeError, ValueError):
-                setattr(obj, key, value)
+                setattr(self, key, value)
             else:
-                setattr(obj, key, obj_dct.to_object())
+                setattr(self, key, obj_dct.to_object())
 
-        return obj
